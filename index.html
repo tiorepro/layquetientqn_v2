@@ -1,0 +1,1076 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+    <title>Lạc Việt Độn Toán & Mai Hoa Việt Dịch & Kỳ Môn Độn Giáp - Pro Engine - TIEN.TQN</title>
+
+    <!-- NHÚNG CÁC FILE DỮ LIỆU ĐÃ TÁCH -->
+    <script src="gua64Names.js"></script>
+    <script src="HEXAGRAM_DETAILS.js"></script>
+    <script src="TOT_CHO_MAP.js"></script>
+    <script src="BAT_MON_LUC_NHAM.js"></script>
+    <script src="LAC_VIET_QUE.js"></script>
+    <script src="GOOD_LAC_VIET_QUE_AND_GOOD_MAI_HOA_QUE.js"></script>
+
+    <style>
+        /* =========================================
+           CSS CHUNG VÀ CỦA KỲ MÔN ĐỘN GIÁP
+           ========================================= */
+        :root {
+            --bg: #f6f3ea; --paper: #ffffff; --surface: #f1ede0; --border: #ddd6c0;
+            --line: #ece5d4; --text-main: #1f241f; --text-muted: #6b6758;
+            --accent: #1f6f5c; --accent-hover: #15584a; --accent-soft: #e4efe9;
+            --good: #1f6f5c; --bad: #a8332a; --warn: #b07a1f; --gold: #85692b;
+            --shadow: 0 4px 20px rgba(31, 36, 31, 0.06);
+            --radius-lg: 16px; --radius-md: 10px; --radius-sm: 6px;
+        }
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            background: var(--bg); color: var(--text-main);
+            font-family: "Times New Roman", "Georgia", serif;
+            font-size: 14.5px; font-weight: 400; -webkit-font-smoothing: antialiased; 
+            padding: 15px;
+            display: flex; flex-direction: column; align-items: center; gap: 20px;
+            min-height: 100vh;
+        }
+
+        /* KHU VỰC ĐIỀU KHIỂN CHUNG TRÊN CÙNG */
+        .global-header { width: 100%; max-width: 1250px; margin: 0 auto; background: var(--paper); border-radius: var(--radius-lg); border: 1px solid var(--border); box-shadow: var(--shadow); overflow: hidden; }
+        #nguHanhDisplay { text-align: center; padding: 12px; background: #fff; border: 1px solid var(--border); border-radius: var(--radius-md); margin-bottom: 10px; font-size: 15px; color: var(--text-main); }
+        .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+        /* =========================================
+           CSS CỦA LẠC VIỆT ĐỘN TOÁN & MAI HOA DỊCH
+           ========================================= */
+        .page-frame { width: 100%; max-width: 1250px; background: var(--paper); box-shadow: var(--shadow); border-radius: var(--radius-lg); box-sizing: border-box; overflow: hidden; display: flex; flex-direction: column; border: 1px solid var(--border); margin: 0 auto; }
+        .container { width: 100%; padding: 14px; margin: 0 auto; flex-grow: 1; display: flex; flex-direction: column; justify-content: flex-start; box-sizing: border-box; }
+        
+        /* Bố cục Grid - Mặc định Mobile xếp dọc (1 cột) */
+        .results-container { display: grid; grid-template-columns: 1fr; gap: 16px; width: 100%; }
+        .right-column { display: flex; flex-direction: column; }
+        
+        .lac-viet-section, .mai-hoa-section, .tot-cho-section { 
+            background-color: #fff; 
+            border-radius: var(--radius-lg); 
+            box-shadow: var(--shadow); 
+            border: 1px solid var(--border); 
+            overflow: hidden; 
+        }
+        .tot-cho-section { margin-top: 16px; padding: 12px 16px; }
+        
+        /* ÉP BẢNG CỐ ĐỊNH CHIỀU RỘNG CHỐNG TRÀN SCROLL NGANG */
+        .result-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+        .result-table th { 
+            padding: 12px 8px; text-align: center; 
+            background-color: var(--surface); color: var(--accent); 
+            font-weight: bold; font-size: 14.5px;
+            border-bottom: 1px solid var(--border); 
+            border-right: 1px solid var(--border);
+        }
+        .result-table td { 
+            padding: 10px 8px; text-align: center; vertical-align: middle; 
+            border-bottom: 1px solid var(--border); 
+            border-right: 1px solid var(--border);
+            word-wrap: break-word; overflow-wrap: break-word; word-break: break-word;
+            white-space: normal; /* Ép rớt dòng chữ */
+        }
+        .result-table th:last-child, .result-table td:last-child { border-right: none; }
+        .result-table tr:last-child td { border-bottom: none; }
+
+        .highlight-blue, .highlight-yellow, .highlight-green, .highlight-red { 
+            padding: 10px; margin: 4px; text-align: justify; 
+            border-radius: var(--radius-md); line-height: 1.5; 
+            word-wrap: break-word; overflow-wrap: break-word; word-break: break-word;
+            white-space: normal;
+        }
+        .highlight-blue { background-color: #eaf1f3; border: 1px solid #c9dade; }
+        .highlight-green { background-color: #e8f1ec; border: 1px solid #bedbc9;}
+        .highlight-yellow { background-color: #f5eedc; border: 1px solid #ddc88f;}
+        .highlight-red { background-color: #f5e6e2; border: 1px solid #e0b8ae;}
+        
+        .button-container-left { text-align: left; margin-top: 10px; padding: 0 10px 10px; }
+        
+        .small-button { padding: 6px 14px; font-size: 13px; font-family: sans-serif; border-radius: var(--radius-sm); background-color: var(--accent); color: #fff; cursor: pointer; transition: 0.2s; border: none; font-weight: 500; }
+        .small-button:hover { background-color: var(--accent-hover); box-shadow: 0 2px 5px rgba(0,0,0,0.15); }
+        
+        #gioKheResults { display: none; border-top: 1px solid var(--border); }
+        #gioKheResults.show { display: block; animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+        
+        #gioKheDateDisplay { margin: 12px 0 0; font-size: 14.5px; color: var(--text-main); text-align: center; padding-bottom: 10px; border-bottom: 1px dashed var(--border); font-family: sans-serif; }
+        
+        .gua-structure { font-size: 20px; line-height: 1.3; text-align: center; margin: 4px 0; min-height: 44px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: bold; }
+        .degree-display, .luc-thu-display { font-size: 14.5px; color: var(--text-main); text-align: center; margin-top: 4px; font-weight: bold; min-height: 20px; display: flex; align-items: center; justify-content: center; }
+        .gua-name, .gua-meaning { min-height: 34px; display: flex; align-items: center; justify-content: center; }
+        .gua-meaning { text-align: justify; padding: 6px; font-size: 14px; height: 100%; box-sizing: border-box; }
+        .lunar-bold { font-weight: bold; color: var(--accent); }
+        
+        #maiHoaDetail { padding: 16px; background-color: #fff; border-top: 1px dashed var(--border); display: none; line-height: 1.6; }
+        #maiHoaDetail.show { display: block; animation: fadeIn 0.3s ease-in-out; }
+        #maiHoaDetail h2, #maiHoaDetail h3 { text-align: center; color: var(--accent); margin-bottom: 10px; font-size: 16px; }
+        #maiHoaDetail p, #maiHoaDetail ul { text-align: justify; margin: 10px 0; color: var(--text-main); }
+        #maiHoaDetail ul { padding-left: 20px; }
+
+        .page-frame footer, .page footer { text-align: center; font-size: 12px; color: var(--text-muted); padding: 15px 0 10px 0; font-family: sans-serif; border-top: 1px dashed var(--border); margin-top: 0; background: var(--surface); }
+
+        /* =========================================
+           CSS KỲ MÔN ĐỘN GIÁP
+           ========================================= */
+        .page { width: 100%; max-width: 1250px; margin: 0 auto; background: var(--paper); border-radius: var(--radius-lg); border: 1px solid var(--border); box-shadow: var(--shadow); overflow: hidden; }
+        .page-header { padding: 12px 16px; background: #fff; border-bottom: 1px solid var(--border); }
+        /* Góc trái đầu trang: ấn triện + chữ ký (lạc khoản); bên phải là tiêu đề */
+        .brand-row { display: flex; align-items: center; gap: 14px; }
+        /* Cột chữ ký tự co theo độ rộng chữ (không cố định px) để "Hiệu Dương Minh" luôn nằm trên 1 dòng, dù máy dùng phông nào */
+        .brand-mark { box-sizing: border-box; flex: 0 0 auto; padding-right: 14px; display: flex; flex-direction: column; align-items: center; text-align: center; border-right: 1px solid var(--border); }
+        .brand-mark .seal { display: block; width: 58px; height: 58px; transform: rotate(-3deg); }
+        .brand-mark .sig-name { margin-top: 6px; font-size: 12px; font-weight: bold; letter-spacing: 1.5px; color: var(--accent); line-height: 1.2; white-space: nowrap; }
+        .brand-mark .sig-hieu { margin-top: 2px; font-size: 12px; font-style: normal; color: var(--text-muted); line-height: 1.2; white-space: nowrap; }
+        .brand-text { flex: 1 1 auto; min-width: 0; }
+        .page-header .title { font-size: 16px; font-weight: bold; color: var(--accent); letter-spacing: 0.2px; text-align: left; line-height: 1.35; }
+        .page-header .sub { font-size: 12.5px; color: var(--text-muted); margin-top: 4px; text-align: left; line-height: 1.45; }
+        @media (min-width: 768px) {
+            .page-header { padding: 14px 22px; }
+            .brand-row { gap: 20px; }
+            .brand-mark { padding-right: 22px; }
+            .brand-mark .seal { width: 78px; height: 78px; }
+            .brand-mark .sig-name, .brand-mark .sig-hieu { font-size: 13.5px; }
+            .page-header .title { font-size: 18px; }
+            .page-header .sub { font-size: 13px; }
+        }
+        @media (max-width: 360px) { /* điện thoại rất nhỏ */
+            .page-header { padding: 10px 12px; }
+            .brand-row { gap: 10px; }
+            .brand-mark { padding-right: 10px; }
+            .brand-mark .seal { width: 48px; height: 48px; }
+            .brand-mark .sig-name, .brand-mark .sig-hieu { font-size: 11px; }
+            .brand-mark .sig-name { letter-spacing: 1px; }
+            .page-header .title { font-size: 14.5px; }
+            .page-header .sub { font-size: 12px; }
+        }
+        .page-body { padding: 14px; }
+
+        .toolbar { display: flex; flex-direction: column; gap: 8px; margin-bottom: 8px; }
+        .input-group { display: flex; align-items: center; background: #fff; border: 1px solid var(--border); border-radius: var(--radius-md); padding: 4px 10px; flex: 1; }
+        .input-group label { font-size: 13.5px; color: var(--text-muted); margin-right: 10px; white-space: nowrap; font-family: sans-serif; }
+        input[type="datetime-local"], select.opts { flex: 1; height: 32px; border: none; background: transparent; font-family: sans-serif; font-size: 14.5px; color: var(--text-main); outline: none; }
+        select.opts { text-overflow: ellipsis; white-space: nowrap; overflow: hidden; }
+
+        .btn-group { display: flex; gap: 8px; margin-bottom: 12px; }
+        .btn { flex: 1; height: 42px; border-radius: var(--radius-md); background: var(--accent); color: #fff; font-size: 14px; border: none; cursor: pointer; transition: all 0.2s; font-family: sans-serif; font-weight: 500; }
+        .btn:hover { background: var(--accent-hover); }
+        .btn.secondary { background: #fff; color: var(--text-main); border: 1px solid var(--border); }
+        .btn.secondary:hover { background: var(--surface); }
+
+        .settings-group { display: flex; flex-direction: column; justify-content: center; gap: 8px; margin-bottom: 12px; }
+        .settings-group .input-group { width: 100%; }
+
+        .info { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: var(--radius-md); margin-bottom: 8px; overflow: hidden; }
+        .kv { background: #fff; padding: 6px 10px; display: flex; flex-direction: column; justify-content: center; gap: 2px; }
+        .k { font-size: 12px; color: var(--text-muted); }
+        .v { font-size: 14px; color: var(--text-main); line-height: 1.3; word-break: break-word; }
+
+        .boards { display: grid; grid-template-columns: 1fr; gap: 16px; width: 100%; }
+        .board { background: #fff; border-radius: var(--radius-md); border: 1px solid var(--border); overflow: hidden; display: flex; flex-direction: column; height: 100%; }
+        .board-head { background: var(--surface); padding: 8px 0; text-align: center; border-bottom: 1px solid var(--border); }
+        .board-head h2 { font-size: 14px; font-weight: bold; color: var(--accent); margin: 0; }
+
+        .grid { display: grid; grid-template-columns: repeat(3, 1fr); background: var(--line); gap: 1px; flex: 1; width: 100%; }
+        .cell { background: #fff; display: flex; flex-direction: column; min-height: 85px; }
+        .cell.dim { opacity: 0.35; }
+        .cell-shell { padding: 6px; flex: 1; display: flex; flex-direction: column; justify-content: space-between; gap: 4px; }
+        .cell-topline { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px; }
+        .meta-chip { font-size: 11px; color: var(--gold); font-family: sans-serif; }
+        .pos { font-size: 11.5px; color: var(--text-muted); background: var(--surface); border: 1px solid var(--border); padding: 1px 6px; border-radius: 4px; font-family: sans-serif; }
+        .qm-main { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; text-align: center; align-items: center; }
+        .qm-value, .qm-gate, .stem-line, .pat { font-size: 14px; color: var(--text-main); white-space: normal; word-break: break-word; line-height: 1.4; }
+        .qm-gate { text-align: center; color: var(--accent); font-weight: bold; margin: 4px 0; }
+        .qm-stems { display: flex; flex-direction: column; gap: 2px; }
+        .pat-wrap { display: flex; flex-direction: column; gap: 4px; }
+        .pat.good { color: var(--good); }
+        .pat.bad { color: var(--bad); }
+        .empty { font-size: 13px; color: var(--text-muted); text-align: center; margin: auto; }
+
+        footer { text-align: center; font-size: 12px; color: var(--text-muted); padding: 15px 0 10px 0; font-family: sans-serif; }
+
+        .page-2-header { text-align: center; padding: 20px 0 16px 0; border-bottom: 1px dashed var(--border); margin-bottom: 16px; }
+        .page-2-header h2 { font-size: 18px; font-weight: bold; color: var(--accent); margin: 0; }
+        .topic-layout { display: grid; grid-template-columns: 1fr; gap: 16px; padding: 0 14px 16px 14px; }
+        .topic-panel, .result-panel { background: #fff; border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden; display: flex; flex-direction: column; box-shadow: var(--shadow); }
+        .topic-panel-head, .result-panel-head, .note-head { background: var(--surface); padding: 12px 14px; border-bottom: 1px solid var(--border); }
+        .topic-panel-head label { font-size: 13px; color: var(--text-muted); display: block; margin-bottom: 8px; font-family: sans-serif; }
+        select#topicSelect { width: 100%; height: 38px; border-radius: var(--radius-sm); border: 1px solid var(--border); font-family: sans-serif; font-size: 14.5px; outline: none; background: #fff; padding: 0 10px; }
+        .topic-guide-box, .result-body { padding: 14px; font-size: 15px; line-height: 1.6; color: var(--text-main); min-height: 250px; text-align: justify; }
+        .result-panel-head { display: flex; justify-content: space-between; align-items: center; }
+        .result-panel-head span { font-weight: bold; color: var(--accent); font-size: 15px; font-family: sans-serif; }
+        .btn-small { height: 28px; padding: 0 12px; font-size: 12px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: #fff; color: var(--text-main); cursor: pointer; font-family: sans-serif; }
+        .btn-small:hover { background: var(--surface); }
+        .note-panel { border-top: 1px solid var(--border); background: #fdfdfc; }
+        .note-head { background: #f5eedc; border-bottom: 1px solid #ddc88f; display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; }
+        .note-head span { font-size: 13px; color: #7a5f1c; font-family: sans-serif; }
+        textarea#analysisNote { width: 100%; border: none; background: transparent; padding: 14px; font-family: inherit; font-size: 14.5px; color: var(--text-main); outline: none; min-height: 100px; resize: vertical; line-height: 1.6; }
+
+        /* =========================================
+           Media Queries (Responsive Toàn Tập)
+           ========================================= */
+        @media (min-width: 560px) {
+            .toolbar { flex-direction: row; align-items: stretch; }
+            .btn-group { flex: 0 0 200px; margin-bottom: 0; }
+            .boards { grid-template-columns: 1fr 1fr; gap: 12px; }
+            .qm-value, .qm-gate, .stem-line, .pat { font-size: 13.5px; }
+            .topic-layout { grid-template-columns: 240px 1fr; gap: 12px; }
+            .settings-group { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+            select.opts { font-size: 13px; }
+        }
+        
+        /* ĐIỂM NGẮT 600px - ĐIỆN THOẠI NGANG, GALAXY FOLD, IPAD */
+        @media (min-width: 600px) {
+            /* Tỷ lệ 40% - 60% CHUẨN XÁC, BẢNG TỰ FIX CHIỀU RỘNG CHỐNG TRÀN */
+            .results-container { grid-template-columns: 4fr 6fr; align-items: start; }
+        }
+
+        @media (min-width: 768px) {
+            .toolbar { gap: 16px; }
+            .btn-group { flex: 0 0 240px; }
+            .boards { gap: 20px; }
+            .qm-value, .qm-gate, .stem-line, .pat { font-size: 14.5px; }
+            .topic-layout { grid-template-columns: 320px 1fr; gap: 20px; }
+            .info { grid-template-columns: repeat(5, 1fr); }
+            .kv { padding: 6px 8px; }
+            .v { font-size: 14px; }
+        }
+        
+        @media (min-width: 900px) {
+            .settings-group { grid-template-columns: repeat(4, 1fr); gap: 12px; }
+            select.opts { font-size: 14.5px; }
+        }
+
+        /* ===== BADGE STATUS ===== */
+        .badge-row { display: flex; flex-wrap: wrap; gap: 3px; margin-top: 4px; padding-top: 3px; border-top: 1px dashed rgba(0,0,0,0.08); }
+        .badge { display: inline-block; font-size: 10px; line-height: 1; padding: 2px 5px; border-radius: 3px; font-family: sans-serif; font-weight: 600; white-space: nowrap; }
+        .badge-void  { background: #f5eedc; color: #7a5f1c; border: 1px solid #ddc88f; }
+        .badge-horse { background: #eaf1f3; color: #2f6690; border: 1px solid #c9dade; }
+        .badge-mo    { background: #f5e6e2; color: #a8332a; border: 1px solid #e0b8ae; }
+        .badge-quy   { background: #e8f1ec; color: #1f6f5c; border: 1px solid #bedbc9; }
+        .badge-tt    { background: #f0eaf0; color: #6b4a6b; border: 1px solid #d9c7d9; }
+        .badge-tp    { background: #f5ebe0; color: #96461f; border: 1px solid #e0c7ae; }
+        .badge-vuong { background: #e3eee8; color: #1f6f5c; border: 1px solid #a8d0bd; }
+        .badge-suy   { background: #efebe3; color: #6b6758; border: 1px solid #d6cfc0; }
+
+        /* Màn hình hẹp (điện thoại, iPad dọc nhỏ): canh trái thay vì canh đều hai bên - cột hẹp mà canh đều
+           sẽ giãn khoảng trắng rất lớn giữa các từ, khó đọc. Từ 768px trở lên (iPad, máy tính) vẫn canh đều. */
+        @media (max-width: 767px) {
+            .highlight-blue, .highlight-yellow, .highlight-green, .highlight-red,
+            .gua-meaning, #maiHoaDetail p, #maiHoaDetail ul, .topic-guide-box, .result-body,
+            #maiHoaAnalysis li { text-align: left !important; }
+        }
+
+        @media print {
+            body { margin: 0; padding: 0; background-color: #fff; }
+            .global-header, .page-frame, .page { width: 100%; box-shadow: none; border: none; padding: 0; margin-bottom: 20px;}
+            .toolbar, .btn-group, .small-button, #btnClearNote { display: none !important; }
+            .lac-viet-section, .mai-hoa-section, .tot-cho-section, #maiHoaDetail, .board { border: 1px solid #ddd; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- =========================================
+         KHU VỰC ĐIỀU KHIỂN CHUNG
+         ========================================= -->
+    <div class="global-header">
+      <div class="page-header">
+        <div class="brand-row">
+          <div class="brand-mark" title="Trần Quang Nam Tiến">
+            <img class="seal" width="58" height="58" alt="Ấn triện Trần Quang Nam Tiến" src="data:image/png;base64,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" />
+            <div class="sig-name">TIEN.TQN</div>
+            <div class="sig-hieu">Hiệu Dương Minh</div>
+          </div>
+          <div class="brand-text">
+            <div class="title">LẠC VIỆT ĐỘN TOÁN & MAI HOA VIỆT DỊCH & KỲ MÔN ĐỘN GIÁP - TIEN.TQN</div>
+            <div class="sub">Tích hợp 3 Phương pháp Lạc Việt Độn Toán; Mai Hoa (đổi Tốn - Chấn); Kỳ Môn Độn Giáp (Hà Đồ) tại một thời điểm lấy quẻ.</div>
+          </div>
+        </div>
+      </div>
+      <div class="page-body">
+
+        <div class="toolbar">
+          <div class="input-group">
+            <label>Ngày giờ lập quẻ</label>
+            <input id="dt" type="datetime-local" />
+          </div>
+          <div class="btn-group">
+            <button class="btn" id="btnCalc">Lấy quẻ</button>
+            <button class="btn secondary" id="btnNow">Bây giờ</button>
+          </div>
+        </div>
+
+        <div class="settings-group">
+          <div class="input-group">
+            <label>Hệ Thống KM</label>
+            <select id="optHeThong" class="opts">
+              <option value="hado">Hà Đồ Cửu Cung</option>
+              <option value="lacthu">Lạc Thư Cửu Cung</option>
+            </select>
+          </div>
+          <div class="input-group">
+            <label>Cách An KM</label>
+            <select id="optDiCung" class="opts">
+              <option value="chuyen">Chuyển Bàn</option>
+              <option value="phi">Phi Toàn Bàn</option>
+            </select>
+          </div>
+          <div class="input-group">
+            <label>Định Cục KM</label>
+            <select id="optAnCuc" class="opts">
+              <option value="trietbo">Triết Bổ Pháp</option>
+              <option value="phudau" selected>Trí Nhuận Pháp</option>
+            </select>
+          </div>
+          <div class="input-group">
+            <label>Ký Khôn KM</label>
+            <select id="optKyCung" class="opts">
+              <option value="khon">Âm Dương Khôn</option>
+              <option value="can_khon">Dương Cấn - Âm Khôn</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- BẢNG THÔNG TIN NGÀY GIỜ (TỪ KỲ MÔN) -->
+        <div class="info" id="info"></div>
+
+        <!-- HIỂN THỊ NGŨ HÀNH TRONG THÁNG (CỦA LẠC VIỆT) -->
+        <div id="nguHanhDisplay"></div>
+        
+        <!-- Các thẻ ẩn của Lạc Việt (để file JS không báo lỗi null) -->
+        <div style="display: none;">
+            <div id="lacVietDate"></div>
+            <div id="tietKhiDisplay"></div>
+        </div>
+
+      </div>
+    </div>
+
+
+    <!-- =========================================
+         PHẦN 1: LẠC VIỆT ĐỘN TOÁN & MAI HOA VIỆT DỊCH
+         ========================================= -->
+    <div class="page-frame">
+        <div class="container">
+            <div class="results-container">
+                
+                <!-- CỘT TRÁI (40%) -->
+                <div class="lac-viet-section">
+                    <div class="table-responsive">
+                        <table class="result-table">
+                            <tr><th>QUẺ LẠC VIỆT ĐỘN TOÁN</th></tr>
+                            <tr><td>
+                                <div class="highlight-yellow"><strong>LẠC VIỆT ĐỘN TOÁN: <span id="lacVietQueName"></span></strong><div id="lacVietQueDetails"></div></div>
+                                <div class="highlight-green"><strong>BÁT MÔN ĐỘN GIÁP: <span id="lacVietBatMonName"></span></strong><div id="lacVietBatMonDetails"></div></div>
+                                <div class="highlight-green"><strong>LỤC NHÂM ĐẠI ĐỘN: <span id="lacVietLucNhamName"></span></strong><div id="lacVietLucNhamDetails"></div></div>
+                            </td></tr>
+                        </table>
+                    </div>
+                    
+                    <div class="button-container-left">
+                        <button class="small-button" id="gioKheButton">Quẻ Độn</button>
+                    </div>
+
+                    <div id="gioKheResults">
+                        <div class="table-responsive">
+                            <table class="result-table">
+                                <tr><td>
+                                    <div id="gioKheDateDisplay"></div>
+                                    <div class="highlight-yellow"><strong>LẠC VIỆT ĐỘN TOÁN: <span id="gioKheQueName"></span></strong><div id="gioKheQueDetails"></div></div>
+                                    <div class="highlight-green"><strong>BÁT MÔN ĐỘN GIÁP: <span id="gioKheBatMonName"></span></strong><div id="gioKheBatMonDetails"></div></div>
+                                    <div class="highlight-green"><strong>LỤC NHÂM ĐẠI ĐỘN: <span id="gioKheLucNhamName"></span></strong><div id="gioKheLucNhamDetails"></div></div>
+                                </td></tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- CỘT PHẢI (60%) -->
+                <div class="right-column">
+                    <div class="mai-hoa-section">
+                        <div class="table-responsive">
+                            <table class="result-table">
+                                <tr><th colspan="3">QUẺ MAI HOA ( Đổi Tốn - Chấn )</th></tr>
+                                <tr>
+                                    <th style="width: 33.33%;">QUẺ CHÍNH</th>
+                                    <th style="width: 33.33%;">QUẺ HỖ</th>
+                                    <th style="width: 33.33%;">QUẺ BIẾN</th>
+                                </tr>
+                                <tr>
+                                    <td><div class="highlight-green gua-name" id="maiHoaChan"></div></td>
+                                    <td><div class="highlight-yellow gua-name" id="maiHoaHo"></div></td>
+                                    <td><div class="highlight-red gua-name" id="maiHoaBien"></div></td>
+                                </tr>
+                                <tr>
+                                    <td><div class="gua-structure" id="maiHoaChanStructure"></div></td>
+                                    <td><div class="gua-structure" id="maiHoaHoStructure"></div></td>
+                                    <td><div class="gua-structure" id="maiHoaBienStructure"></div></td>
+                                </tr>
+                                <tr>
+                                    <td style="vertical-align: top;"><div class="highlight-green gua-meaning" id="maiHoaChanMeaning"></div></td>
+                                    <td style="vertical-align: top;"><div class="highlight-yellow gua-meaning" id="maiHoaHoMeaning"></div></td>
+                                    <td style="vertical-align: top;"><div class="highlight-red gua-meaning" id="maiHoaBienMeaning"></div></td>
+                                </tr>
+                                <tr>
+                                    <td><div class="degree-display" id="maiHoaChanDegree"></div></td>
+                                    <td><div class="degree-display" id="maiHoaHoDegree"></div></td>
+                                    <td><div class="degree-display" id="maiHoaBienDegree"></div></td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="luc-thu-display" id="maiHoaChanLucThu"></div>
+                                        <div style="text-align: center; margin-top: 10px;">
+                                            <button class="small-button" id="detailButton">Nội Dung Quẻ </button>
+                                        </div>
+                                    </td>
+                                    <td style="vertical-align: bottom;">
+                                        <div class="luc-thu-display" style="visibility: hidden;">&nbsp;</div>
+                                        <div style="text-align: center; margin-top: 10px;">
+                                            <button class="small-button" id="analysisMaiHoaButton">Phân Tích Quẻ</button>
+                                        </div>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div id="maiHoaDetail"></div>
+                        <div id="maiHoaAnalysis"></div>
+                    </div>
+                    <div class="tot-cho-section"><div class="highlight-blue" id="totChoContent" style="margin: 0;"></div></div>
+                </div>
+
+            </div>
+        </div>
+        <footer>Lạc Việt Độn Toán & Mai Hoa Việt Dịch - TIEN.TQN</footer>
+    </div>
+
+    <!-- =========================================
+         PHẦN 2: KỲ MÔN ĐỘN GIÁP
+         ========================================= -->
+    <div class="page page-1">
+      <div class="page-body">
+        <div class="boards">
+          <div class="board">
+            <div class="board-head"><h2>Bảng Kỳ Môn</h2></div>
+            <div class="grid" id="gridQimen"></div>
+          </div>
+          <div class="board">
+            <div class="board-head"><h2>Bảng Cách Cục</h2></div>
+            <div class="grid" id="gridPatterns"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="page page-2">
+      <div class="page-2-header"><h2>Bảng Luận Quẻ Theo Chủ Đề</h2></div>
+      <div class="topic-layout">
+        <div class="topic-panel">
+          <div class="topic-panel-head">
+            <label>Chọn chủ đề xem quẻ</label>
+            <select id="topicSelect">
+              <option value="">-- Chọn chủ đề --</option>
+              <option value="1">1. Cơ thể</option>
+              <option value="2">2. Nghề nghiệp</option>
+              <option value="3">3. Thăng chức</option>
+              <option value="4">4. Tìm người dẫn đường</option>
+              <option value="5">5. Chuyển việc</option>
+              <option value="6">6. Xin việc</option>
+              <option value="7">7. Mua hàng</option>
+              <option value="8">8. Bán hàng</option>
+              <option value="9">9. Mở kinh doanh</option>
+              <option value="10">10. Hợp tác</option>
+              <option value="11">11. Mua bán BĐS</option>
+              <option value="12">12. Đi vay / cho vay</option>
+              <option value="13">13. Đòi nợ</option>
+              <option value="14">14. Thi đấu</option>
+              <option value="15">15. Thi cử</option>
+              <option value="16">16. Chỗ đỗ xe</option>
+              <option value="17">17. Du lịch</option>
+              <option value="18">18. Hôn nhân</option>
+              <option value="19">19. Sinh nở (giới tính)</option>
+              <option value="20">20. Sinh nở</option>
+              <option value="21">21. Sức khỏe</option>
+              <option value="22">22. Kiện tụng</option>
+              <option value="23">23. Tố tụng hình sự</option>
+              <option value="24">24. Đi lạc</option>
+              <option value="25">25. Mất đồ</option>
+              <option value="26">26. Thời tiết</option>
+            </select>
+          </div>
+          <div id="topicGuide" class="topic-guide-box">
+            <div style="color:var(--text-muted);text-align:center;padding:40px 0;font-family:sans-serif;">Vui lòng chọn chủ đề để xem hướng dẫn</div>
+          </div>
+        </div>
+        <div class="result-panel">
+          <div class="result-panel-head">
+            <span>Luận Quẻ</span>
+          </div>
+          <div id="analysisResult" class="result-body">
+            <div style="color:var(--text-muted);text-align:center;padding:40px 0;font-family:sans-serif;">Chọn chủ đề để luận quẻ</div>
+          </div>
+          <div class="note-panel">
+            <div class="note-head">
+              <span>Ghi chú & Luận giải</span>
+              <button id="btnClearNote" class="btn-small">Xóa</button>
+            </div>
+            <textarea id="analysisNote" placeholder="Thêm nhận xét, diễn giải riêng..."></textarea>
+          </div>
+        </div>
+      </div>
+      <footer>Kỳ Môn Độn Giáp - TIEN.TQN</footer>
+    </div>
+
+
+    <!-- =========================================
+         SCRIPT CỦA LẠC VIỆT ĐỘN TOÁN & MAI HOA DỊCH
+         ========================================= -->
+    <script type="text/javascript">
+    (function() {
+        const TIME_ZONE = 7;
+        const PI = Math.PI;
+        const NGAY_TRONG_TUAN = ["Chủ nhật", "Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7"];
+        const THIEN_CAN = ["Giáp", "Ất", "Bính", "Đinh", "Mậu", "Kỷ", "Canh", "Tân", "Nhâm", "Quý"];
+        const DIA_CHI = ["Tí", "Sửu", "Dần", "Mão", "Thìn", "Tị", "Ngọ", "Mùi", "Thân", "Dậu", "Tuất", "Hợi"];
+        const TIET_KHI = ["Xuân phân", "Thanh minh", "Cốc vũ", "Lập hạ", "Tiểu mãn", "Mang chủng", "Hạ chí", "Tiểu thử", "Đại thử", "Lập thu", "Xử thử", "Bạch lộ", "Thu phân", "Hàn lộ", "Sương giáng", "Lập đông", "Tiểu tuyết", "Đại tuyết", "Đông chí", "Tiểu hàn", "Đại hàn", "Lập xuân", "Vũ thủy", "Kinh trập"];
+        // Vượng suy ngũ hành phải xét theo NGUYỆT LỆNH = tháng tiết khí (12 "tiết" chia năm),
+        // không phải tháng âm lịch (đếm theo chu kỳ Mặt Trăng). Mỗi tháng tiết khí gồm 1 "tiết" + 1 "khí"
+        // kế tiếp; bảng dưới ánh xạ mỗi tiết khí sang một số đại diện (1-12) khớp đúng các khoảng
+        // [1,2] Xuân - [4,5] Hạ - [7,8] Thu - [10,11] Đông - còn lại (3,6,9,12) là Tứ Quý, đúng như
+        // calculateNguHanhStatus() bên dưới đã định nghĩa.
+        const TIET_KHI_THANG_NUM = {
+            "Lập xuân": 1, "Vũ thủy": 1,       // tháng Dần
+            "Kinh trập": 2, "Xuân phân": 2,    // tháng Mão
+            "Thanh minh": 3, "Cốc vũ": 3,      // tháng Thìn (Tứ Quý)
+            "Lập hạ": 4, "Tiểu mãn": 4,        // tháng Tỵ
+            "Mang chủng": 5, "Hạ chí": 5,      // tháng Ngọ
+            "Tiểu thử": 6, "Đại thử": 6,       // tháng Mùi (Tứ Quý)
+            "Lập thu": 7, "Xử thử": 7,         // tháng Thân
+            "Bạch lộ": 8, "Thu phân": 8,       // tháng Dậu
+            "Hàn lộ": 9, "Sương giáng": 9,     // tháng Tuất (Tứ Quý)
+            "Lập đông": 10, "Tiểu tuyết": 10,  // tháng Hợi
+            "Đại tuyết": 11, "Đông chí": 11,   // tháng Tý
+            "Tiểu hàn": 12, "Đại hàn": 12      // tháng Sửu (Tứ Quý)
+        };
+        const HOUR_TO_CHI = { 23: "Tí", 0: "Tí", 1: "Sửu", 2: "Sửu", 3: "Dần", 4: "Dần", 5: "Mão", 6: "Mão", 7: "Thìn", 8: "Thìn", 9: "Tị", 10: "Tị", 11: "Ngọ", 12: "Ngọ", 13: "Mùi", 14: "Mùi", 15: "Thân", 16: "Thân", 17: "Dậu", 18: "Dậu", 19: "Tuất", 20: "Tuất", 21: "Hợi", 22: "Hợi" };
+        const CHI_TO_INDEX = { "Tí": 1, "Sửu": 2, "Dần": 3, "Mão": 4, "Thìn": 5, "Tị": 6, "Ngọ": 7, "Mùi": 8, "Thân": 9, "Dậu": 10, "Tuất": 11, "Hợi": 12 };
+        const CHI_TO_HOUR_RANGE = { "Tí": "(23h-1h)", "Sửu": "(1h-3h)", "Dần": "(3h-5h)", "Mão": "(5h-7h)", "Thìn": "(7h-9h)", "Tị": "(9h-11h)", "Ngọ": "(11h-13h)", "Mùi": "(13h-15h)", "Thân": "(15h-17h)", "Dậu": "(17h-19h)", "Tuất": "(19h-21h)", "Hợi": "(21h-23h)" };
+
+        let currentMainGua = null, currentChangedGua = null, currentInfo = null, currentHourIndex = null;
+
+        // ===== GIỜ MẶT TRỜI THỰC (CHÍNH NGỌ) - tự động theo vị trí máy =====
+        // Kinh tuyến chuẩn của múi giờ đang dùng (TIME_ZONE = 7 -> 105 độ Đông, giờ Việt Nam)
+        const STANDARD_MERIDIAN = TIME_ZONE * 15;
+        let deviceLongitude = null; // null = chưa xác định được vị trí, tạm coi như ở đúng kinh tuyến chuẩn
+        let devicePlaceName = null;   // Tên địa điểm suy ra từ vị trí máy (do dò ngược tọa độ), null nếu chưa có/không xác định được
+        let devicePlaceLookupDone = false; // tránh gọi dò ngược tọa độ nhiều lần cho cùng một vị trí
+
+        // Dò ngược tọa độ ra tên địa điểm (quận/huyện, tỉnh/thành) bằng OpenStreetMap Nominatim (miễn phí, không cần khóa API).
+        // Đây là dịch vụ bên ngoài nên cần Internet; nếu lỗi hoặc không có mạng thì bỏ qua âm thầm, không hiển thị kinh độ thay thế.
+        function reverseGeocodePlace(lat, lng, onDone) {
+            if (typeof fetch !== 'function') { onDone(null); return; }
+            const url = 'https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=' + lat + '&lon=' + lng + '&zoom=10&accept-language=vi';
+            fetch(url).then(function (res) { return res.ok ? res.json() : null; }).then(function (data) {
+                if (!data || !data.address) { onDone(null); return; }
+                const a = data.address;
+                const place = a.city || a.town || a.village || a.county || a.city_district || a.suburb || a.state_district;
+                const province = a.state || a.region;
+                const parts = [];
+                if (place) parts.push(place);
+                if (province && province !== place) parts.push(province);
+                if (!parts.length && a.country) parts.push(a.country);
+                onDone(parts.length ? parts.join(', ') : null);
+            }).catch(function () { onDone(null); });
+        }
+
+        // Phương trình thời gian (Equation of Time), đơn vị phút.
+        // Công thức đầy đủ (kinh độ Mặt Trời trung bình - xích kinh biểu kiến), chính xác hơn
+        // xấp xỉ hình sin đơn giản, và dùng chung getJulianDayNumber() đã có sẵn để tránh sai số
+        // ngày-trong-năm do fromDate của JavaScript.
+        function equationOfTimeMinutes(date) {
+            const jdn = getJulianDayNumber(date.getDate(), date.getMonth() + 1, date.getFullYear());
+            const n = jdn - 2451545.0; // số ngày kể từ điểm mốc J2000.0
+            const L = mod360(280.46061837 + 0.98564736629 * n);
+            const g = mod360(357.52911 + 0.98560028 * n);
+            const dr = Math.PI / 180;
+            const gr = g * dr;
+            const lambda = L + 1.914602 * Math.sin(gr) + 0.019993 * Math.sin(2 * gr) + 0.000289 * Math.sin(3 * gr);
+            const obliq = (23.439291 - 0.00000036 * n) * dr;
+            const alpha = Math.atan2(Math.cos(obliq) * Math.sin(lambda * dr), Math.cos(lambda * dr)) * 180 / Math.PI;
+            let eot = 4 * (L - alpha);
+            if (eot > 20) eot -= 1440;
+            if (eot < -20) eot += 1440;
+            return eot;
+        }
+        function mod360(x) { return ((x % 360) + 360) % 360; }
+
+        // Độ lệch (phút) giữa giờ Mặt Trời thực và giờ hành chính, tại kinh độ hiện có và ngày đã cho.
+        // TC > 0: Mặt Trời thực đi trước giờ hành chính (giữa trưa thực đến sớm hơn 12:00).
+        function getTrueSolarCorrectionMinutes(date) {
+            const lng = (deviceLongitude != null) ? deviceLongitude : STANDARD_MERIDIAN;
+            return 4 * (lng - STANDARD_MERIDIAN) + equationOfTimeMinutes(date);
+        }
+
+        // Giờ Chính Ngọ (giữa trưa Mặt Trời thực) theo giờ hành chính, cho ngày đã cho.
+        function getTrueSolarNoon(date) {
+            const tc = getTrueSolarCorrectionMinutes(date);
+            let totalMin = 12 * 60 - tc;
+            totalMin = ((totalMin % 1440) + 1440) % 1440;
+            const hh = Math.floor(totalMin / 60);
+            const mm = Math.round(totalMin % 60);
+            return { hh, mm, tc, longitude: deviceLongitude };
+        }
+
+        // Từ ngày giờ hành chính người dùng nhập, suy ra ngày/giờ "hiệu lực" đã hiệu chỉnh theo giờ Mặt Trời thực,
+        // để xác định lại chính xác đến từng phút thời điểm chuyển canh (giờ Chi) và chuyển ngày âm lịch (Tý = 23h thực).
+        // Hàm trả về day/month/year đã dịch (nếu việc hiệu chỉnh làm vượt qua mốc Tý) và một "giờ đại diện"
+        // (0-21, luôn nhỏ hơn 23) để các công thức Bát Môn/Lục Nhâm/Mai Hoa hiện có (dựa trên HOUR_TO_CHI) không đổi.
+        function getEffectiveDateTimeForQue(date) {
+            const tc = getTrueSolarCorrectionMinutes(date);
+            const shifted = date.getHours() * 60 + date.getMinutes() + tc;
+            const dayAdvance = Math.floor((shifted + 60) / 1440);
+            let chiIndex = Math.floor((shifted + 60) / 120) % 12;
+            if (chiIndex < 0) chiIndex += 12;
+            const repHour = (chiIndex === 0) ? 0 : (chiIndex * 2 - 1);
+            const eff = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+            eff.setDate(eff.getDate() + dayAdvance);
+            return {
+                day: eff.getDate(), month: eff.getMonth() + 1, year: eff.getFullYear(),
+                hour: repHour, chiIndex: chiIndex, dayAdvance: dayAdvance, tc: tc
+            };
+        }
+
+        // Dịch một thời điểm dương lịch (giờ hành chính) sang thời điểm "hiệu lực" theo giờ Mặt Trời thực,
+        // trả về ngày/giờ/phút đầy đủ (không rút gọn), để nạp thẳng vào bàn Kỳ Môn (3meta.js/KyMonEngine.js).
+        // Việc chuyển ngày mới (nếu độ lệch làm vượt qua 24h) chỉ xảy ra ở mốc 00:00 thông thường; còn mốc
+        // Tý (23h) do chính 3meta.js tự xử lý bên trong như đã làm với giờ hành chính trước đây, áp dụng
+        // trên thời điểm đã dịch này. Nhờ vậy Can Chi Ngày/Giờ của Kỳ Môn cũng chính xác đến từng phút
+        // theo giờ Mặt Trời thực, giống hệt nguyên lý đã dùng cho quẻ Lạc Việt/Mai Hoa.
+        function getEffectiveClockDateTime(date) {
+            const tc = getTrueSolarCorrectionMinutes(date);
+            const totalMin = date.getHours() * 60 + date.getMinutes() + tc;
+            const dayAdvance = Math.floor(totalMin / 1440);
+            let minOfDay = totalMin - dayAdvance * 1440;
+            const eff = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+            eff.setDate(eff.getDate() + dayAdvance);
+            let hh = Math.floor(minOfDay / 60);
+            let mm = Math.round(minOfDay % 60);
+            if (mm === 60) { mm = 0; hh += 1; }
+            if (hh === 24) { hh = 0; eff.setDate(eff.getDate() + 1); }
+            return { year: eff.getFullYear(), month: eff.getMonth() + 1, day: eff.getDate(), hour: hh, minute: mm };
+        }
+        function pad2Solar(n) { return (n < 10 ? '0' : '') + n; }
+        // Chuỗi "YYYY-MM-DD HH:MM:SS" đã hiệu chỉnh, đúng định dạng KyMonEngine.byDatetime() cần.
+        function getEffectiveDateTimeString(datetimeLocalValue) {
+            if (!datetimeLocalValue) return null;
+            const d = new Date(datetimeLocalValue);
+            if (isNaN(d.getTime())) return null;
+            const e = getEffectiveClockDateTime(d);
+            return e.year + '-' + pad2Solar(e.month) + '-' + pad2Solar(e.day) + ' ' + pad2Solar(e.hour) + ':' + pad2Solar(e.minute) + ':00';
+        }
+
+        // Chia sẻ ra ngoài để main.js (bàn Kỳ Môn) cũng dùng cùng một phép hiệu chỉnh giờ Mặt Trời thực:
+        // Can Chi Giờ/Ngày và mốc chuyển ngày của Kỳ Môn nay cũng dịch theo Chính Ngọ giống quẻ Lạc Việt/Mai Hoa.
+        // Tiết khí (thời điểm chuyển tiết) vẫn là một thời điểm thiên văn cố định, không phụ thuộc kinh độ người xem;
+        // việc hiệu chỉnh ở đây chỉ ảnh hưởng đến việc "đang ở ngày/giờ Can Chi nào tại đúng lúc lập quẻ", không
+        // làm đổi thời điểm tiết khí trong bảng 24 tiết đã tính sẵn.
+        window.SolarTimeCorrection = {
+            getLongitude: function () { return deviceLongitude; },
+            getPlaceName: function () { return devicePlaceName; },
+            standardMeridian: STANDARD_MERIDIAN,
+            getCorrectionMinutes: getTrueSolarCorrectionMinutes,
+            getTrueSolarNoon: getTrueSolarNoon,
+            getEffectiveClockDateTime: getEffectiveClockDateTime,
+            getEffectiveDateTimeString: getEffectiveDateTimeString,
+            getEffectiveDateTimeForQue: getEffectiveDateTimeForQue
+        };
+
+        function requestDeviceLongitude() {
+            if (!('geolocation' in navigator)) return;
+            navigator.geolocation.getCurrentPosition(
+                function (pos) {
+                    deviceLongitude = pos.coords.longitude;
+                    // Có kinh độ chính xác hơn -> lập lại quẻ và bàn Kỳ Môn để cập nhật giờ chuyển canh
+                    if (typeof convertDate === 'function') convertDate();
+                    if (typeof window.calculate === 'function') window.calculate();
+                    if (!devicePlaceLookupDone) {
+                        devicePlaceLookupDone = true;
+                        reverseGeocodePlace(pos.coords.latitude, pos.coords.longitude, function (name) {
+                            devicePlaceName = name;
+                            // Có tên địa điểm -> hiển thị lại (bàn Kỳ Môn đọc tên này khi vẽ lại "Dương lịch")
+                            if (typeof window.calculate === 'function') window.calculate();
+                        });
+                    }
+                },
+                function () { /* Không lấy được vị trí: dùng tạm kinh tuyến chuẩn múi giờ, không báo lỗi làm phiền người dùng */ },
+                { enableHighAccuracy: false, timeout: 8000, maximumAge: 600000 }
+            );
+        }
+        requestDeviceLongitude();
+        // ===== HẾT MODULE GIỜ MẶT TRỜI THỰC =====
+
+        function INT(d) { return Math.floor(d); }
+
+        function getJulianDayNumber(dd, mm, yy) {
+            const a = INT((14 - mm) / 12), y = yy + 4800 - a, m = mm + 12 * a - 3;
+            let jd = dd + INT((153 * m + 2) / 5) + 365 * y + INT(y / 4) - INT(y / 100) + INT(y / 400) - 32045;
+            if (jd < 2299161) { jd = dd + INT((153 * m + 2) / 5) + 365 * y + INT(y / 4) - 32083; }
+            return jd;
+        }
+
+        function getNewMoonDay(k) {
+            const T = k / 1236.85, T2 = T * T, T3 = T2 * T, dr = PI / 180;
+            let Jd1 = 2415020.75933 + 29.53058868 * k + 0.0001178 * T2 - 0.000000155 * T3 + 0.00033 * Math.sin((166.56 + 132.87 * T - 0.009173 * T2) * dr);
+            const M = 359.2242 + 29.10535608 * k - 0.0000333 * T2 - 0.00000347 * T3;
+            const Mpr = 306.0253 + 385.81691806 * k + 0.0107306 * T2 + 0.00001236 * T3;
+            const F = 21.2964 + 390.67050646 * k - 0.0016528 * T2 - 0.00000239 * T3;
+            let C1 = (0.1734 - 0.000393 * T) * Math.sin(M * dr) + 0.0021 * Math.sin(2 * dr * M) - 0.4068 * Math.sin(Mpr * dr) + 0.0161 * Math.sin(dr * 2 * Mpr) - 0.0004 * Math.sin(dr * 3 * Mpr) + 0.0104 * Math.sin(dr * 2 * F) - 0.0051 * Math.sin(dr * (M + Mpr)) - 0.0074 * Math.sin(dr * (M - Mpr)) + 0.0004 * Math.sin(dr * (2 * F + M)) - 0.0004 * Math.sin(dr * (2 * F - M)) - 0.0006 * Math.sin(dr * (2 * F + Mpr)) + 0.0010 * Math.sin(dr * (2 * F - Mpr)) + 0.0005 * Math.sin(dr * (2 * Mpr + M));
+            let deltat = (T < -11) ? (0.001 + 0.000839 * T + 0.0002261 * T2 - 0.00000845 * T3 - 0.000000081 * T * T3) : (-0.000278 + 0.000265 * T + 0.000262 * T2);
+            return INT(Jd1 + C1 - deltat + 0.5 + TIME_ZONE / 24);
+        }
+
+        function getSunLongitude(jdn, asDegree = false) {
+            const T = (jdn - 2451545.5 - TIME_ZONE / 24) / 36525, T2 = T * T, dr = PI / 180;
+            const M = 357.52910 + 35999.05030 * T - 0.0001559 * T2 - 0.00000048 * T * T2;
+            const L0 = 280.46645 + 36000.76983 * T + 0.0003032 * T2;
+            const DL = (1.914600 - 0.004817 * T - 0.000014 * T2) * Math.sin(dr * M) + (0.019993 - 0.000101 * T) * Math.sin(dr * 2 * M) + 0.000290 * Math.sin(dr * 3 * M);
+            let L = L0 + DL;
+            while (L < 0) L += 360; while (L >= 360) L -= 360;
+            return asDegree ? L : INT(L / 30);
+        }
+
+        function getLunarMonth11(yy) {
+            let nm = getNewMoonDay(INT((getJulianDayNumber(31, 12, yy) - 2415021) / 29.530588853));
+            if (getSunLongitude(nm) >= 9) { nm = getNewMoonDay(INT((getJulianDayNumber(31, 12, yy) - 2415021) / 29.530588853) - 1); }
+            return nm;
+        }
+
+        function getLeapMonthOffset(a11) {
+            const k = INT((a11 - 2415021.076998695) / 29.530588853 + 0.5); let last = 0, i = 1, arc;
+            do { last = getSunLongitude(getNewMoonDay(k + i)); i++; arc = getSunLongitude(getNewMoonDay(k + i)); } while (arc != last && i < 14);
+            return i - 1;
+        }
+
+        function convertSolarToLunar(solarDay, solarMonth, solarYear, hour) {
+            let jdToUse = getJulianDayNumber(solarDay, solarMonth, solarYear);
+            if (hour >= 23) { jdToUse += 1; }
+            const k = INT((jdToUse - 2415021.076998695) / 29.530588853);
+            let monthStart = getNewMoonDay(k + 1);
+            if (monthStart > jdToUse) { monthStart = getNewMoonDay(k); }
+            let a11 = getLunarMonth11(solarYear), b11 = a11, lunarYear, lunarMonth;
+            if (a11 >= monthStart) { lunarYear = solarYear; a11 = getLunarMonth11(solarYear - 1); } 
+            else { lunarYear = solarYear + 1; b11 = getLunarMonth11(solarYear + 1); }
+            const lunarDay = jdToUse - monthStart + 1; const diff = INT((monthStart - a11) / 29);
+            let lunarLeap = 0; lunarMonth = diff + 11;
+            if (b11 - a11 > 365) {
+                const leapMonthDiff = getLeapMonthOffset(a11);
+                if (diff >= leapMonthDiff) { lunarMonth = diff + 10; if (diff == leapMonthDiff) { lunarLeap = 1; } }
+            }
+            if (lunarMonth > 12) { lunarMonth -= 12; } if (lunarMonth >= 11 && diff < 4) { lunarYear -= 1; }
+            return [lunarYear, lunarMonth, lunarDay, lunarLeap];
+        }
+
+        // Tiết khí CHÍNH XÁC ĐẾN PHÚT, lấy từ thư viện lịch thiên văn 3meta - cùng nguồn với bàn Kỳ Môn nên hai bên
+        // luôn khớp nhau. Trước đây tiết khí chỉ được tính theo NGÀY (đo vị trí Mặt Trời lúc 0 giờ sáng), nên chỉ đổi
+        // vào nửa đêm hôm sau giờ chuyển thật (trễ tới gần 24 giờ), lại còn dùng ngày đã dịch theo Chính Ngọ và đẩy
+        // sang ngày kế khi từ 23h. Tiết khí là mốc thiên văn tuyệt đối nên phải so với ĐỒNG HỒ THẬT, không dịch.
+        // 3meta hiểu giờ nhập là giờ Bắc Kinh (UTC+8) nên phải đổi từ giờ Việt Nam (UTC+7) sang (cộng 1 giờ).
+        const JIEQI_CN_TO_VI = {'春分':'Xuân phân','清明':'Thanh minh','谷雨':'Cốc vũ','立夏':'Lập hạ','小满':'Tiểu mãn','芒种':'Mang chủng','夏至':'Hạ chí','小暑':'Tiểu thử','大暑':'Đại thử','立秋':'Lập thu','处暑':'Xử thử','白露':'Bạch lộ','秋分':'Thu phân','寒露':'Hàn lộ','霜降':'Sương giáng','立冬':'Lập đông','小雪':'Tiểu tuyết','大雪':'Đại tuyết','冬至':'Đông chí','小寒':'Tiểu hàn','大寒':'Đại hàn','立春':'Lập xuân','雨水':'Vũ thủy','惊蛰':'Kinh trập'};
+        // wall: Date mà các trường ngày/giờ chính là đồng hồ Việt Nam người dùng nhập (chưa dịch Chính Ngọ)
+        function getTietKhiExact(wall) {
+            try {
+                if (!wall || typeof ThreeMeta === 'undefined' || !ThreeMeta.Solar) return null;
+                const b = new Date(Date.UTC(wall.getFullYear(), wall.getMonth(), wall.getDate(), wall.getHours() + (8 - TIME_ZONE), wall.getMinutes(), 0));
+                const lunar = ThreeMeta.Solar.fromYmdHms(b.getUTCFullYear(), b.getUTCMonth() + 1, b.getUTCDate(), b.getUTCHours(), b.getUTCMinutes(), 0).getLunar();
+                return JIEQI_CN_TO_VI[lunar.getPrevJieQi(false).getName()] || null;
+            } catch (e) { return null; }
+        }
+
+        function getDateInfo(hour, day, month, year, wall) {
+            const jdn = getJulianDayNumber(day, month, year);
+            const [lunarYear, lunarMonth, lunarDay, lunarLeap] = convertSolarToLunar(day, month, year, hour);
+            let jdnForCanChi = jdn;
+            if (hour >= 23) { jdnForCanChi += 1; }
+            const chiGio = INT((hour + 1) / 2) % 12;
+            const canNgay = (jdnForCanChi + 9) % 10;
+            let canGioTyDau;
+            switch (canNgay % 5) {
+                case 0: canGioTyDau = 0; break; case 1: canGioTyDau = 2; break;
+                case 2: canGioTyDau = 4; break; case 3: canGioTyDau = 6; break;
+                case 4: canGioTyDau = 8; break;
+            }
+            return {
+                solarHour: hour, solarDay: day, solarMonth: month, solarYear: year,
+                weekday: NGAY_TRONG_TUAN[(jdn + 1) % 7],
+                lunarDay: lunarDay, lunarMonth: lunarMonth, lunarYear: lunarYear, lunarLeap: lunarLeap,
+                hourCanChi: THIEN_CAN[(canGioTyDau + chiGio) % 10] + " " + DIA_CHI[chiGio],
+                dayCanChi: THIEN_CAN[canNgay] + " " + DIA_CHI[(jdnForCanChi + 1) % 12],
+                monthCanChi: THIEN_CAN[(lunarYear * 12 + lunarMonth + 3) % 10] + " " + DIA_CHI[(lunarMonth + 1) % 12],
+                yearCanChi: THIEN_CAN[(lunarYear + 6) % 10] + " " + DIA_CHI[(lunarYear + 8) % 12],
+                tietKhi: getTietKhiExact(wall) || TIET_KHI[INT(getSunLongitude(jdnForCanChi, true) / 15) % 24] // dự phòng (theo ngày) nếu thiếu 3meta
+            };
+        }
+
+        function calculateBatMon(lunarMonth, lunarDay, hourIndex) {
+            const mapping = ["Hưu", "Sinh", "Thương", "Đỗ", "Cảnh", "Tử", "Kinh", "Khai"];
+            return mapping[(lunarMonth + lunarDay + hourIndex) % 8];
+        }
+
+        function calculateLucNham(lunarYear, lunarMonth, lunarDay, hourIndex) {
+            const yearCanChi = THIEN_CAN[(lunarYear + 6) % 10] + " " + DIA_CHI[(lunarYear + 8) % 12];
+            const yearIndex = DIA_CHI.indexOf(yearCanChi.split(" ")[1]) + 1;
+            const mapping = ["Tiểu Cát", "Vô Vong", "Đại An", "Lưu Niên", "Tốc Hỷ", "Xích Khẩu"];
+            return mapping[(yearIndex + lunarMonth + lunarDay + hourIndex - 2) % 6];
+        }
+
+        function getLacVietQue(batMon, lucNham) {
+            const queName = `${batMon} ${lucNham}`;
+            const que = LAC_VIET_QUE.find(q => q.name === queName);
+            return que ? que : { name: queName, meaning: "Chưa có dữ liệu cho quẻ này." };
+        }
+
+        function findGuaNumber(structure) {
+            for (let guaNum in guaStructures) {
+                if (JSON.stringify(guaStructures[guaNum]) === JSON.stringify(structure)) { return parseInt(guaNum); }
+            }
+            return 8;
+        }
+
+        function calculateMaiHoa(hour, lunarDay, lunarMonth, lunarYear) {
+            const hourIndex = CHI_TO_INDEX[HOUR_TO_CHI[hour]];
+            const yearCanChi = THIEN_CAN[(lunarYear + 6) % 10] + " " + DIA_CHI[(lunarYear + 8) % 12];
+            const yearIndex = DIA_CHI.indexOf(yearCanChi.split(" ")[1]) + 1;
+            let upperGua = (lunarDay + lunarMonth + yearIndex) % 8 || 8;
+            let lowerGua = (hourIndex + lunarDay + lunarMonth + yearIndex) % 8 || 8;
+            let movingLine = (hourIndex + lunarDay + lunarMonth + yearIndex) % 6 || 6;
+            const mainGua = { upper: upperGua, lower: lowerGua, name: gua64Names[`${upperGua}_${lowerGua}`], degree: upperGua + lowerGua };
+            const mainStructure = [...guaStructures[lowerGua], ...guaStructures[upperGua]];
+            const innerSupportGua = findGuaNumber([mainStructure[1], mainStructure[2], mainStructure[3]]);
+            const outerSupportGua = findGuaNumber([mainStructure[2], mainStructure[3], mainStructure[4]]);
+            const supportGua = { upper: outerSupportGua, lower: innerSupportGua, name: gua64Names[`${outerSupportGua}_${innerSupportGua}`], degree: outerSupportGua + innerSupportGua };
+            const supportStructure = [...guaStructures[innerSupportGua], ...guaStructures[outerSupportGua]];
+            const changedStructure = [...mainStructure];
+            if (movingLine >= 1 && movingLine <= 6) { changedStructure[movingLine - 1] = 1 - changedStructure[movingLine - 1]; }
+            const innerChangedGua = findGuaNumber(changedStructure.slice(0, 3));
+            const outerChangedGua = findGuaNumber(changedStructure.slice(3, 6));
+            const changedGua = { upper: outerChangedGua, lower: innerChangedGua, name: gua64Names[`${outerChangedGua}_${innerChangedGua}`], degree: outerChangedGua + innerChangedGua };
+            currentMainGua = mainGua.name;
+            currentChangedGua = changedGua.name;
+            return { mainGua, mainStructure, supportGua, supportStructure, changedGua, changedStructure: [...guaStructures[innerChangedGua], ...guaStructures[outerChangedGua]], movingLine };
+        }
+
+        function calculateLucThu(dayCan, movingLine) {
+            const startIndex = CAN_TO_LUC_THU_START[dayCan] || 0;
+            return LUC_THU[(startIndex + movingLine - 1) % 6];
+        }
+
+        const BAT_MON_HANH = { 'Khai': 'thuy', 'Hưu': 'thuy', 'Sinh': 'moc', 'Thương': 'moc', 'Đỗ': 'hoa', 'Cảnh': 'hoa', 'Tử': 'kim', 'Kinh': 'kim' };
+        const LUC_NHAM_HANH = { 'Đại An': 'tho', 'Vô Vong': 'tho', 'Lưu Niên': 'thuy', 'Tốc Hỷ': 'hoa', 'Xích Khẩu': 'kim', 'Tiểu Cát': 'moc' };
+        function vsBadgeClass(vs) { return (vs === 'vượng' || vs === 'tướng') ? 'badge-vuong' : 'badge-suy'; }
+        function vsCap(vs) { return vs ? vs.charAt(0).toUpperCase() + vs.slice(1) : ''; }
+        function vsBadgeHtml(vs) { return vs ? ` <span class="badge ${vsBadgeClass(vs)}">${vsCap(vs)}</span>` : ''; }
+
+        function calculateNguHanhStatus(lunarMonth) {
+            let kim, thuy, moc, hoa, tho;
+            if ([1, 2].includes(lunarMonth)) { moc = "vượng"; hoa = "tướng"; thuy = "hưu"; kim = "tù"; tho = "tử"; } 
+            else if ([4, 5].includes(lunarMonth)) { hoa = "vượng"; tho = "tướng"; moc = "hưu"; thuy = "tù"; kim = "tử"; } 
+            else if ([7, 8].includes(lunarMonth)) { kim = "vượng"; thuy = "tướng"; tho = "hưu"; hoa = "tù"; moc = "tử"; } 
+            else if ([10, 11].includes(lunarMonth)) { thuy = "vượng"; moc = "tướng"; kim = "hưu"; tho = "tù"; hoa = "tử"; } 
+            else { tho = "vượng"; kim = "tướng"; hoa = "hưu"; moc = "tù"; thuy = "tử"; }
+            return { kim, thuy, moc, hoa, tho };
+        }
+
+        function displayGuaStructure(structure) {
+            const lowerGuaNum = findGuaNumber(structure.slice(0, 3));
+            const upperGuaNum = findGuaNumber(structure.slice(3, 6));
+            return `${guaSymbols[upperGuaNum]}<br>${guaSymbols[lowerGuaNum]}`;
+        }
+
+        function convertDate() {
+            const datetimeValue = document.getElementById("dt").value;
+            if (!datetimeValue) return false;
+            
+            const date = new Date(datetimeValue);
+            if (isNaN(date.getTime())) return false;
+            
+            try {
+                const eff = getEffectiveDateTimeForQue(date);
+                const info = getDateInfo(eff.hour, eff.day, eff.month, eff.year, date); // date = đồng hồ thật, dùng riêng cho tiết khí
+                currentInfo = info;
+                currentHourIndex = CHI_TO_INDEX[HOUR_TO_CHI[info.solarHour]];
+                
+                // Vượng suy xét theo nguyệt lệnh (tháng tiết khí), không theo tháng âm lịch (xem chú thích ở TIET_KHI_THANG_NUM).
+                const thangLenhSo = TIET_KHI_THANG_NUM[info.tietKhi] !== undefined ? TIET_KHI_THANG_NUM[info.tietKhi] : info.lunarMonth;
+                const nguHanh = calculateNguHanhStatus(thangLenhSo);
+                document.getElementById("nguHanhDisplay").innerHTML = `NGŨ HÀNH TRONG THÁNG (Tiết: ${info.tietKhi}) <br> <span style="color: #6a6e78; margin: 0 8px; font-weight: bold;">Kim: ${nguHanh.kim}</span> | <span style="color: #2f6690; margin: 0 8px; font-weight: bold;">Thủy: ${nguHanh.thuy}</span> | <span style="color: #1f6f5c; margin: 0 8px; font-weight: bold;">Mộc: ${nguHanh.moc}</span> | <span style="color: #a8332a; margin: 0 8px; font-weight: bold;">Hỏa: ${nguHanh.hoa}</span> | <span style="color: #85692b; margin: 0 8px; font-weight: bold;">Thổ: ${nguHanh.tho}</span>`;
+                
+                const batMon = calculateBatMon(info.lunarMonth, info.lunarDay, currentHourIndex);
+                const lucNham = calculateLucNham(info.lunarYear, info.lunarMonth, info.lunarDay, currentHourIndex);
+                const lacVietQue = getLacVietQue(batMon, lucNham);
+                const batMonData = BAT_MON.find(b => b.name === batMon) || {};
+                const lucNhamData = LUC_NHAM.find(l => l.name === lucNham) || {};
+                
+                document.getElementById("lacVietQueName").innerHTML = lacVietQue.name.replace(" ", " - ");
+                document.getElementById("lacVietQueDetails").innerHTML = lacVietQue.meaning;
+                document.getElementById("lacVietBatMonName").innerHTML = batMon + vsBadgeHtml(nguHanh[BAT_MON_HANH[batMon]]);
+                document.getElementById("lacVietBatMonDetails").innerHTML = `Ngũ Hành: ${batMonData.nguHanh || 'N/A'}<br>Độ Số: ${batMonData.degree || 'N/A'}<br>Màu Sắc: ${batMonData.color || 'N/A'}<br>Phương Vị: ${batMonData.direction || 'N/A'}<br>Tính Chất: ${batMonData.meaning || 'N/A'}`;
+                document.getElementById("lacVietLucNhamName").innerHTML = lucNham + vsBadgeHtml(nguHanh[LUC_NHAM_HANH[lucNham]]);
+                document.getElementById("lacVietLucNhamDetails").innerHTML = `Nghĩa Đen: ${lucNhamData.nghiaDen || 'N/A'}<br>Ngũ Hành: ${lucNhamData.nguHanh || 'N/A'}<br>Độ Số: ${lucNhamData.degree || 'N/A'}<br>Màu Sắc: ${lucNhamData.color || 'N/A'}<br>Phương Vị: ${lucNhamData.direction || 'N/A'}<br>Tính Chất: ${lucNhamData.tinhChat || 'N/A'}<br>Tính Người: ${lucNhamData.tinhNguoi || 'N/A'}<br>Công Việc: ${lucNhamData.congViec || 'N/A'}<br>Bệnh Tật: ${lucNhamData.benhTat || 'N/A'}`;
+                
+                const maiHoa = calculateMaiHoa(info.solarHour, info.lunarDay, info.lunarMonth, info.lunarYear);
+                const { mainGua, mainStructure, supportGua, supportStructure, changedGua, changedStructure, movingLine } = maiHoa;
+                window.__MAIHOA_STATE = { maiHoa: maiHoa, info: info, batMon: batMon, lucNham: lucNham, lacVietQue: lacVietQue };
+                document.getElementById("maiHoaChan").innerHTML = `${mainGua.name} (<span style="color: red;">HĐ: ${movingLine}</span>)`;
+                document.getElementById("maiHoaChanStructure").innerHTML = displayGuaStructure(mainStructure);
+                document.getElementById("maiHoaChanMeaning").innerHTML = HEXAGRAMS.find(h => h.name === mainGua.name)?.description || "Chưa có mô tả.";
+                document.getElementById("maiHoaChanDegree").innerHTML = `Độ số quẻ: ${mainGua.degree}`;
+                
+                const lucThu = calculateLucThu(info.dayCanChi.split(" ")[0], movingLine);
+                document.getElementById("maiHoaChanLucThu").innerHTML = `<span style="color: ${lucThu.color};">${lucThu.name}</span>`;
+                
+                document.getElementById("maiHoaHo").innerHTML = supportGua.name;
+                document.getElementById("maiHoaHoStructure").innerHTML = displayGuaStructure(supportStructure);
+                document.getElementById("maiHoaHoMeaning").innerHTML = HEXAGRAMS.find(h => h.name === supportGua.name)?.description || "Chưa có mô tả.";
+                document.getElementById("maiHoaHoDegree").innerHTML = `Độ số quẻ: ${supportGua.degree}`;
+                
+                document.getElementById("maiHoaBien").innerHTML = changedGua.name;
+                document.getElementById("maiHoaBienStructure").innerHTML = displayGuaStructure(changedStructure);
+                document.getElementById("maiHoaBienMeaning").innerHTML = HEXAGRAMS.find(h => h.name === changedGua.name)?.description || "Chưa có mô tả.";
+                document.getElementById("maiHoaBienDegree").innerHTML = `Độ số quẻ: ${changedGua.degree}`;
+                
+                document.getElementById("maiHoaDetail").classList.remove("show");
+                if (window.MaiHoaAnalysis) window.MaiHoaAnalysis.reset();
+                document.getElementById("gioKheResults").classList.remove("show");
+                updateTotChoContent();
+                
+                return true; 
+            } catch (e) {
+                console.error("Lỗi trong convertDate Lạc Việt:", e);
+                return true; 
+            }
+        }
+
+        function calculateGioKhe() {
+            if (!currentInfo) { alert("Vui lòng nhấn 'Lấy quẻ' trước!"); return; }
+            
+            const gioKheResults = document.getElementById("gioKheResults");
+            // Thêm logic bật/tắt (toggle) nếu bảng đã hiện thì ẩn đi
+            if (gioKheResults.classList.contains("show")) {
+                gioKheResults.classList.remove("show");
+                return;
+            }
+
+            const gioKheHour = (currentInfo.solarHour + 2) % 24;
+            let dayToUse = { day: currentInfo.solarDay, month: currentInfo.solarMonth, year: currentInfo.solarYear };
+            if (currentInfo.solarHour >= 22) { 
+                const nextDate = new Date(dayToUse.year, dayToUse.month - 1, dayToUse.day);
+                nextDate.setDate(nextDate.getDate() + 1);
+                dayToUse = { day: nextDate.getDate(), month: nextDate.getMonth() + 1, year: nextDate.getFullYear() };
+            }
+            try {
+                const info = getDateInfo(gioKheHour, dayToUse.day, dayToUse.month, dayToUse.year);
+                const gioKheHourIndex = (currentHourIndex % 12) + 1;
+                document.getElementById("gioKheDateDisplay").innerHTML = `Chuyển tiếp Giờ <span class="lunar-bold">${info.hourCanChi}</span> - <span class="lunar-bold">${CHI_TO_HOUR_RANGE[DIA_CHI[gioKheHourIndex-1]]}</span>`;
+                
+                const batMon = calculateBatMon(info.lunarMonth, info.lunarDay, gioKheHourIndex);
+                const lucNham = calculateLucNham(info.lunarYear, info.lunarMonth, info.lunarDay, gioKheHourIndex);
+                const lacVietQue = getLacVietQue(batMon, lucNham);
+                const batMonData = BAT_MON.find(b => b.name === batMon) || {};
+                const lucNhamData = LUC_NHAM.find(l => l.name === lucNham) || {};
+                
+                document.getElementById("gioKheQueName").innerHTML = lacVietQue.name.replace(" ", " - ");
+                document.getElementById("gioKheQueDetails").innerHTML = lacVietQue.meaning;
+                document.getElementById("gioKheBatMonName").innerHTML = batMon;
+                document.getElementById("gioKheBatMonDetails").innerHTML = `Ngũ Hành: ${batMonData.nguHanh || 'N/A'}<br>Độ Số: ${batMonData.degree || 'N/A'}<br>Màu Sắc: ${batMonData.color || 'N/A'}<br>Phương Vị: ${batMonData.direction || 'N/A'}<br>Tính Chất: ${batMonData.meaning || 'N/A'}`;
+                document.getElementById("gioKheLucNhamName").innerHTML = lucNham;
+                document.getElementById("gioKheLucNhamDetails").innerHTML = `Nghĩa Đen: ${lucNhamData.nghiaDen || 'N/A'}<br>Ngũ Hành: ${lucNhamData.nguHanh || 'N/A'}<br>Độ Số: ${lucNhamData.degree || 'N/A'}<br>Màu Sắc: ${lucNhamData.color || 'N/A'}<br>Phương Vị: ${lucNhamData.direction || 'N/A'}<br>Tính Chất: ${lucNhamData.tinhChat || 'N/A'}<br>Tính Người: ${lucNhamData.tinhNguoi || 'N/A'}<br>Công Việc: ${lucNhamData.congViec || 'N/A'}<br>Bệnh Tật: ${lucNhamData.benhTat || 'N/A'}`;
+                
+                gioKheResults.classList.add("show");
+            } catch (e) {
+                console.error("Lỗi trong calculateGioKhe:", e);
+                alert("Lỗi khi tính quẻ độn.");
+            }
+        }
+
+        function showGuaDetail() {
+            const maiHoaDetail = document.getElementById("maiHoaDetail");
+            if (!currentMainGua) { alert("Vui lòng nhấn 'Lấy quẻ' trước!"); return; }
+            if (maiHoaDetail.classList.contains("show")) {
+                maiHoaDetail.classList.remove("show"); 
+                return;
+            }
+            const guaDetail = HEXAGRAM_DETAILS.find(g => g.name === currentMainGua);
+            maiHoaDetail.innerHTML = guaDetail ? guaDetail.detail : `<p>Chưa có nội dung chi tiết cho quẻ ${currentMainGua}.</p>`;
+            maiHoaDetail.classList.add("show");
+        }
+
+        // Nội dung "Tốt cho" trong dữ liệu được viết dạng "- Ý 1; - Ý 2; - Ý 3", tách ra thành từng
+        // gạch đầu dòng riêng cho dễ đọc thay vì hiển thị liền một dòng.
+        function formatBulletContent(text) {
+            if (!text) return '';
+            const items = text.split(/;\s*-\s*/).map(s => s.replace(/^-\s*/, '').trim()).filter(Boolean);
+            if (items.length <= 1) return text;
+            return '<ul style="margin:6px 0 0 18px;padding:0;">' + items.map(it => `<li style="margin:3px 0;">${it}</li>`).join('') + '</ul>';
+        }
+        function updateTotChoContent() {
+            const totChoContent = document.getElementById("totChoContent");
+            if (!currentMainGua) { totChoContent.innerHTML = "Tốt cho: Chưa có nội dung."; return; }
+            const totCho = TOT_CHO_MAP.find(t => t.mainGua === currentMainGua && t.changedGua === currentChangedGua);
+            totChoContent.innerHTML = totCho ? `<strong>Tốt cho:</strong>${formatBulletContent(totCho.content)}` : "Tốt cho: Chưa có nội dung Tốt Cho cho giờ này.";
+        }
+
+        function initLacViet() {
+            document.getElementById("btnCalc").addEventListener("click", convertDate);
+            document.getElementById("btnNow").addEventListener("click", () => {
+                let attempts = 0;
+                function poll() {
+                    const success = convertDate();
+                    if (!success && attempts < 10) {
+                        attempts++;
+                        setTimeout(poll, 50); 
+                    }
+                }
+                poll();
+            });
+
+            document.getElementById("gioKheButton").addEventListener("click", calculateGioKhe);
+            document.getElementById("detailButton").addEventListener("click", showGuaDetail);
+            
+            let initAttempts = 0;
+            function autoInit() {
+                const success = convertDate();
+                if (!success && initAttempts < 20) {
+                    initAttempts++;
+                    setTimeout(autoInit, 50); 
+                }
+            }
+            autoInit();
+        }
+
+        document.addEventListener('DOMContentLoaded', initLacViet);
+        
+    })();
+    </script>
+
+
+    <!-- =========================================
+         SCRIPT CỦA KỲ MÔN ĐỘN GIÁP
+         ========================================= -->
+    <script src="events.js"></script>
+    <script src="3meta.js"></script>
+    <script src="KyMonCachCuc.js"></script>
+    <script src="KyMonEngine.js"></script>
+    <script src="fixGanZhi.js"></script>
+    <script src="logicluanque.js"></script>
+    <script src="MaiHoaAnalysis.js"></script>
+    <script src="main.js"></script>
+
+</body>
+</html>
